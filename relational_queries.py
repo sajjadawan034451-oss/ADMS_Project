@@ -3,15 +3,12 @@ import time
 import sys
 import os
 
-# ── Import the data generator ─────────────────────────────────────────────────
+# Import the data generator ─────────────────────────────────────────────────
 sys.path.insert(0, os.path.dirname(__file__))
 from generate_data import generate_dataset
 
-# =============================================================================
-# STEP 1 - CREATE THE DATABASE TABLES
-# =============================================================================
-# This SQL code creates 4 tables: users, stations, trips, events
-# IF NOT EXISTS means: only create if it does not already exist
+
+#  CREATEING FOUR DATABASE TABLES
 
 CREATE_TABLES = """
 PRAGMA foreign_keys = ON;
@@ -56,11 +53,7 @@ CREATE INDEX IF NOT EXISTS idx4 ON events(trip_id);
 CREATE INDEX IF NOT EXISTS idx5 ON events(event_type);
 """
 
-# =============================================================================
-# STEP 2 - THE 4 QUERIES
-# =============================================================================
-
-# Q1 - Get all trips with who made the trip and station names
+# QUERY 1 - Get all trips with who made the trip and station names
 Q1 = """
 SELECT
     t.trip_id,
@@ -79,7 +72,7 @@ JOIN stations es ON es.station_id = t.end_station_id
 ORDER BY t.trip_id;
 """
 
-# Q2 - For every user: how many trips + average trip duration in minutes
+# QUERY 2- For every user: how many trips + average trip duration in minutes
 Q2 = """
 SELECT
     u.user_id,
@@ -94,8 +87,7 @@ LEFT JOIN trips t ON t.user_id = u.user_id
 GROUP BY u.user_id
 ORDER BY u.user_id;
 """
-
-# Q3 - For every station: how many trips start and end there
+# QUERY 3 - For every station: how many trips start and end there
 Q3 = """
 SELECT
     s.station_id,
@@ -110,7 +102,7 @@ GROUP BY s.station_id
 ORDER BY s.station_id;
 """
 
-# Q4 - Find all trips that had at least one ERROR event
+# QUERY 4 - Find all trips that had at least one ERROR event
 Q4 = """
 SELECT DISTINCT
     t.trip_id,
@@ -123,11 +115,7 @@ JOIN events e ON e.trip_id = t.trip_id
 WHERE e.event_type = 'ERROR'
 ORDER BY t.trip_id;
 """
-
-# =============================================================================
-# STEP 3 - HELPER FUNCTIONS
-# =============================================================================
-
+#CREATING FUNCTIONS
 def open_database():
     """Open an in-memory SQLite database and return the connection."""
     conn = sqlite3.connect(":memory:")
@@ -182,9 +170,7 @@ def run_query(conn, sql, name):
     return seconds
 
 
-# =============================================================================
-# STEP 4 - BENCHMARK FUNCTION
-# =============================================================================
+# BENCHMARK FUNCTION
 
 def benchmark(data, label=""):
     """
@@ -210,11 +196,6 @@ def benchmark(data, label=""):
 
     conn.close()
     return results
-
-
-# =============================================================================
-# STEP 5 - MAIN - runs when you type: python relational_queries.py
-# =============================================================================
 
 if __name__ == "__main__":
 
